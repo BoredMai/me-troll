@@ -1,0 +1,59 @@
+* {
+  font-family: 'Ubuntu', 'Helvetica', 'Arial', sans-serif;
+}
+
+body {
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  text-align: center;
+  background-color: white;
+  border-radius: 30px;
+  width: 800px;
+  height: 600px;
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#actions {
+  width: 800px;
+  height: 500px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow-y: auto;
+}
+
+#instructions {
+  margin-top: 5px;
+}
+
+.input {
+  padding: 0px 10px;
+  height: 2em;
+  width: 100px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  margin-right: 5px;
+  text-align: center;
+}
+
+.btn {
+  padding: 0px 10px;
+  height: 2em;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  background-color: white;
+}
+
+#accept {
+  margin-right: 10px;
+}
