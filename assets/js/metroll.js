@@ -102,8 +102,8 @@ function demandGold() {
     changeFear = 0;
     addAction('Am I going soft..?', newTraveler);
   } else {
-    var coinOrCois = gold === 1 ? 'coin' : 'coins';
-    addAction('"Stop.", I say. "Pay ' + gold + ' ' + coinOrCois + ' or leave, human."');
+    var coinOrCoins = gold === 1 ? 'coin' : 'coins';
+    addAction('"Stop.", I say. "Pay ' + gold + ' ' + coinOrCoins + ' or leave, human."');
     addAction('My human speech is pretty rough, but I can see they understand.', resolveGold, gold);
   }
 }
@@ -129,10 +129,10 @@ function travelerPays(gold) {
   addAction('...');
   addAction('Their shoulders sag in acceptance.');
   addAction('"Alright.", they say, handing me the gold I demanded.');
-  var coinOrCois = gold === 1 ? 'coin' : 'coins';
-  addAction('I wave them away and add the ' + coinOrCois + ' to my current stash.');
-  var coinOrCois = currentGold === 1 ? ' coin.' : ' coins.';
-  addAction('I currently have ' + currentGold + coinOrCois, newTraveler);
+  var coinOrCoins = gold === 1 ? 'coin' : 'coins';
+  addAction('I wave them away and add the ' + coinOrCoins + ' to my current stash.');
+  var coinOrCoins = currentGold === 1 ? ' coin.' : ' coins.';
+  addAction('I currently have ' + currentGold + coinOrCoins, newTraveler);
 }
 
 function travelerBargains(gold) {
@@ -162,8 +162,8 @@ function acceptOffer() {
   delay = 500;
   addAction('...');
   addAction('"Alright.", I nod in acceptance. Some money is better than no money.');
-  var coinOrCois = gold === 1 ? 'coin' : 'coins';
-  addAction('I watch as they scramble away and add the ' + coinOrCois + ' to my current stash.');
+  var coinOrCoins = bargainGold === 1 ? 'coin' : 'coins';
+  addAction('I watch as they scramble away and add the ' + coinOrCoins + ' to my current stash.');
   changeFear--;
   if (changeFear <= -3) {
     if (minFear > 0) {
@@ -176,8 +176,8 @@ function acceptOffer() {
     changeFear = 0;
   }
   currentGold += parseInt(bargainGold);
-  var coinOrCois = currentGold === 1 ? ' coin.' : ' coins.';
-  addAction('I currently have ' + currentGold + coinOrCois, newTraveler);
+  var coinOrCoins = currentGold === 1 ? ' coin.' : ' coins.';
+  addAction('I currently have ' + currentGold + coinOrCoins, newTraveler);
 }
 
 function rejectOffer() {
@@ -198,8 +198,8 @@ function rejectOffer() {
     }
     changeFear = 0;
   }
-  var coinOrCois = currentGold === 1 ? ' coin.' : ' coins.';
-  addAction('I currently have ' + currentGold + coinOrCois, newTraveler);
+  var coinOrCoins = currentGold === 1 ? ' coin.' : ' coins.';
+  addAction('I currently have ' + currentGold + coinOrCoins, newTraveler);
 }
 
 function addAction(text, callback, params) {
