@@ -88,12 +88,26 @@ function demandGold() {
   $('#demand-gold').hide();
   delay = 500;
   addAction('...');
-  addAction('"Stop.", I say. "Pay ' + $('#input-number').val() + ' coins or leave, human."');
-  addAction('My human speech is pretty rough, but I can see they understand.', resolveGold);
+  var gold = $('#input-number').val() === '' ? 0 : parseInt($('#input-number').val());
+  if (gold === 0) {
+    addAction('"You. Leave.", I say. "You can pass."');
+    addAction('"What..?", they ask, in confusion.');
+    addAction('"Go, before I change my mind!", I roar.');
+    addAction('I watch as they scramble away and add the coins to my current stash.');
+    if (minFear > 0) {
+      minFear--;
+    } else if (maxFear > 0) {
+      maxFear--;
+    }
+    changeFear = 0;
+    addAction('Am I going soft..?', newTraveler);
+  } else {
+    addAction('"Stop.", I say. "Pay ' + gold + ' coins or leave, human."');
+    addAction('My human speech is pretty rough, but I can see they understand.', resolveGold, gold);
+  }
 }
 
-function resolveGold() {
-  var gold = $('#input-number').val();
+function resolveGold(gold) {
   if (currentTraveler.gold === 0) {
     travelerBegs();
   } else if (gold < Math.ceil(currentTraveler.gold / 2)) {
@@ -205,5 +219,10 @@ function allowNumbersOnly(e) {
   // Ensure that it is a number and stop the keypress
   if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
       e.preventDefault();
+  } else {
+    var newGold = $('#input-number').val() + e.key;
+    if (parseInt(newGold) > 100) {
+      e.preventDefault();
+    }
   }
 }
