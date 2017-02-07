@@ -102,7 +102,8 @@ function demandGold() {
     changeFear = 0;
     addAction('Am I going soft..?', newTraveler);
   } else {
-    addAction('"Stop.", I say. "Pay ' + gold + ' coins or leave, human."');
+    var coinOrCois = gold === 1 ? 'coin' : 'coins';
+    addAction('"Stop.", I say. "Pay ' + gold + ' ' + coinOrCois + ' or leave, human."');
     addAction('My human speech is pretty rough, but I can see they understand.', resolveGold, gold);
   }
 }
@@ -128,8 +129,10 @@ function travelerPays(gold) {
   addAction('...');
   addAction('Their shoulders sag in acceptance.');
   addAction('"Alright.", they say, handing me the gold I demanded.');
-  addAction('I wave them away and add the coins to my current stash.');
-  addAction('I currently have ' + currentGold + ' coins.', newTraveler);
+  var coinOrCois = gold === 1 ? 'coin' : 'coins';
+  addAction('I wave them away and add the ' + coinOrCois + ' to my current stash.');
+  var coinOrCois = currentGold === 1 ? ' coin.' : ' coins.';
+  addAction('I currently have ' + currentGold + coinOrCois, newTraveler);
 }
 
 function travelerBargains(gold) {
@@ -159,7 +162,8 @@ function acceptOffer() {
   delay = 500;
   addAction('...');
   addAction('"Alright.", I nod in acceptance. Some money is better than no money.');
-  addAction('I watch as they scramble away and add the coins to my current stash.');
+  var coinOrCois = gold === 1 ? 'coin' : 'coins';
+  addAction('I watch as they scramble away and add the ' + coinOrCois + ' to my current stash.');
   changeFear--;
   if (changeFear <= -3) {
     if (minFear > 0) {
@@ -172,7 +176,8 @@ function acceptOffer() {
     changeFear = 0;
   }
   currentGold += parseInt(bargainGold);
-  addAction('I currently have ' + currentGold + ' coins.', newTraveler);
+  var coinOrCois = currentGold === 1 ? ' coin.' : ' coins.';
+  addAction('I currently have ' + currentGold + coinOrCois, newTraveler);
 }
 
 function rejectOffer() {
@@ -193,7 +198,8 @@ function rejectOffer() {
     }
     changeFear = 0;
   }
-  addAction('I currently have ' + currentGold + ' coins.', newTraveler);
+  var coinOrCois = currentGold === 1 ? ' coin.' : ' coins.';
+  addAction('I currently have ' + currentGold + coinOrCois, newTraveler);
 }
 
 function addAction(text, callback, params) {
@@ -208,6 +214,11 @@ function addAction(text, callback, params) {
 
 function allowNumbersOnly(e) {
   // Allow: backspace, delete, tab, escape, enter
+  if (e.key === 'Enter') {
+      e.preventDefault();
+    return;
+  }
+
   if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110]) !== -1 ||
         // Allow: Ctrl+A, Command+A
       (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
@@ -216,6 +227,7 @@ function allowNumbersOnly(e) {
             // let it happen, don't do anything
             return;
   }
+
   // Ensure that it is a number and stop the keypress
   if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
       e.preventDefault();
