@@ -3,42 +3,113 @@ travelerTypes = [
     type: 'Poor',
     minGold: 0,
     maxGold: 15,
-    looks: ['poor', 'lower class', 'middle class'],
-    minFear: 2,
-    maxFear: 4
+    looks: [ 'They wear a travel cape over their clothes, a backpack on their shoulders.',
+             'They look weak and weary, as if they haven\'t seen food in days.',
+             'Their clothes are simple, worn. They\'re clothes of a hard worker.',
+             'Judging by their looks, they\'ve seen better days.' ],
+    minFear: 3,
+    maxFear: 5
   },
   {
     type: 'Lower Class',
     minGold: 10,
     maxGold: 30,
-    looks: ['poor', 'lower class'],
-    minFear: 1,
-    maxFear: 4
+    looks: [ 'They wear a travel cape over their clothes, a backpack on their shoulders.',
+             'Their clothes are simple, worn. They\'re clothes of a hard worker.',
+             'They seem to have walked quite a bit to get here, yet they don\'t look tired.',
+             'They have strong, callous hands, the result of years of hard work.' ],
+    minFear: 2,
+    maxFear: 5
   },
   {
     type: 'Middle Class',
     minGold: 20,
     maxGold: 60,
-    looks: ['middle class', 'upper class'],
-    minFear: 0,
-    maxFear: 4
+    looks: [ 'They wear a travel cape over their clothes, a backpack on their shoulders.',
+             'They seem to have walked quite a bit to get here, yet they don\'t look tired.',
+             'They have clean clothes, and seem to know their way around the land.',
+             'They look healthy and well fed, sharp eyes looking ahead on the road.'],
+    minFear: 1,
+    maxFear: 5
   },
   {
     type: 'Upper Class',
     minGold: 40,
     maxGold: 100,
-    looks: ['lower class', 'middle class', 'upper class'],
+    looks: [ 'They wear a travel cape over their clothes, a backpack on their shoulders.',
+             'They have clean clothes, and seem to know their way around the land.',
+             'Their clothes look expensive. You don\'t see these types around too much.',
+             'They walk with a different gait. More... proper, one would say.'],
     minFear: 0,
-    maxFear: 3
+    maxFear: 4
   }
 ];
 
-fearLevels = ['calm', 'hesitant', 'distressed', 'scared', 'terrified']
+fearLevels = [
+  { 
+    description: 'daring',
+    acceptance:  ['They let out a chuckle and shake their head.',
+                  '"Here\'s your tax, troll.", they say, letting the coins fall on the ground as they walk past me.',
+                  'I grunt and huff, collecting them as I secretly wish for that one to die a painful death.'],
+    rejection: '"Hah!", they scoff. "No way I\'m paying that."',
+    bargain: 'They throw $coin coins at my feet, chuckling as they make their way past me.',
+    nopay: 'They let out a snort, smirking as they attempt to walk past me.'
+  },
+  { 
+    description: 'calm',
+    acceptance: ['"Alright.", they say, with a nod.',
+                 'They reach into a pouch, collecting the coins and handing them over before stepping on the bridge.',
+                 'I watch them go for a few moments before storing the coins in my stash.'],
+    rejection: '"That\'s a bit too much, isn\'t it?", they ponder.',
+    bargain: '"What about $coin coins? That\'s more affordable, and also fair."'
+  },
+  { 
+    description: 'hesitant',
+    acceptance: ['Their shoulders sag in acceptance. "O-okay. Just a moment."',
+                 'They hand me a pouch cointaining all the coins before leaving, looking over their shoulders.',
+                 'Silly. I don\'t need to follow him. He paid.'],
+    rejection: '"I... I don\'t carry that much coin.", they mumble, fiddling with their coin pouch.',
+    bargain: '"Would $coin be enough?"'
+  },
+  { 
+    description: 'distressed',
+    acceptance: ['"...okay. Okay, I\'ll... okay.", they whisper, reaching towards their belt.',
+                 'They unclip a coin pouch from their belt, counting the coins quickly before putting them on my outstretched hand and hurrying away.',
+                 'I can hear their steps as I stash the coins away.'],
+    rejection: 'I hear them curse as they run a hand through their hair. "I can\'t... I can\'t pay that."',
+    bargain: '"I can only afford $coin coins. Please, troll, sir, ma\'am, let me pass."'
+  },
+  { 
+    description: 'scared',
+    acceptance: ['I can see a wave of relief passing through their face.',
+                 '"H-here you... here you go.", they mumble, setting the coins on a pile before walking towards the bridge, eyes glancing at me.',
+                 'I don\'t look at them. I only need their coin.'],
+    rejection: 'Their face go white, hands shaking as they reach for their coins.',
+    bargain: '"I don\'t... I...", they mumble. "$coin coins, that\'s all I can g-give you."'
+  },
+  { 
+    description: 'terrified',
+    acceptance: ['It takes a moment for them to understand my request, giving a trembling nod in reply.',
+                 'They hurry to give me the payment, pretty much dropping the coins on the floor before rushing away, unable to even look at me.',
+                 'I watch as they scramble away before collecting my coins, putting them in my stash.'],
+    rejection: 'Their legs give away, and I could smell their fear from miles away.',
+    bargain: '"I-I beg you...", they whisper, laying out $coin on the ground. "P-please, let... p-please, I have to pass..!"'
+  }
+];
+
+chieftainTax = {
+  minPercentage: 5,
+  maxPercentage: 10,
+  undisturbed: ['Looks like the chieftain didn\'t disturb my pile of gold while I was gone.', 'Good.'],
+  disturbed: ['My pile of gold is smaller than before.',
+              'The chieftain collected his tax.',
+              'I lost $coin coins.']
+}
 
 state = {
-  "currentGold": 12,
+  "currentGold": 0,
   "minFear": 0,
-  "maxFear": 4,
+  "maxFear": fearLevels.length - 1,
   "changeFear": 0
 }
 
@@ -52,7 +123,7 @@ function init() {
   $('#accept').on('click', acceptOffer);
   $('#reject').on('click', rejectOffer);
   
-  delay = 500;
+  delay = 1500;
   addAction('I am a troll.');
   var localState = localStorage.getItem('MeTroll');
   if (localState) {
@@ -72,7 +143,7 @@ function checkTime() {
     if (state.currentGold === 0) {
       break;
     }
-    var percentage = Math.floor(Math.random() * 6) + 5;
+    var percentage = Math.floor(Math.random() * (chieftainTax.maxPercentage - chieftainTax.minPercentage + 1)) + chieftainTax.minPercentage;
     var gold = Math.round(state.currentGold * percentage / 100);
     if (gold < 5) {
       gold = state.currentGold < 5 ? state.currentGold : 5;
@@ -82,16 +153,11 @@ function checkTime() {
   }
 
   if (chieftainGold === 0) {
-    addAction('Looks like the chieftain didn\'t disturb my pile of gold while I was gone.');
-    addAction('Good.');
-    updateGold();
+    addMultiple(chieftainTax.undisturbed);
   } else {
-    addAction('My pile of gold is smaller than before.');
-    addAction('The chieftain collected his tax.');
-    var coinOrCoins = chieftainGold === 1 ? ' coin.' : ' coins.';
-    addAction('I lost ' + chieftainGold + coinOrCoins);
-    updateGold();
+    addMultiple(chieftainTax.disturbed, chieftainGold);
   }
+  updateGold();
 }
 
 function newTraveler() {
@@ -113,8 +179,8 @@ function newTraveler() {
   delay = 1500;
   addAction('...');
   addAction('Here comes a traveler.');
-  addAction('They seem to be ' + currentTraveler.looks + '.');
-  addAction('They look ' + fearLevels[currentTraveler.fear] + '.');
+  addAction(currentTraveler.looks);
+  addAction('They look ' + fearLevels[currentTraveler.fear].description + '.');
   addAction('How much should I charge them?', prepareDemand);
 }
 
@@ -127,14 +193,14 @@ function prepareDemand() {
 
 function demandGold() {
   $('#demand-gold').hide();
-  delay = 500;
+  delay = 1500;
   addAction('...');
   var gold = $('#input-number').val() === '' ? 0 : parseInt($('#input-number').val());
   if (gold === 0) {
     addAction('"You. Leave.", I say. "You can pass."');
     addAction('"What..?", they ask, in confusion.');
     addAction('"Go, before I change my mind!", I roar.');
-    addAction('I watch as they scramble away and add the coins to my current stash.');
+    addAction('And with that, they leave. No looking back.');
     if (state.minFear > 0) {
       state.minFear--;
     } else if (state.maxFear > 0) {
@@ -150,42 +216,52 @@ function demandGold() {
 }
 
 function resolveGold(gold) {
+  gold = parseInt(gold);
   if (currentTraveler.gold === 0) {
     travelerBegs();
-  } else if (gold < Math.ceil(currentTraveler.gold / 2)) {
-    travelerPays(gold);
   } else {
-    var bargainChance = Math.floor(Math.random()*fearLevels.length);
-    if ((gold > currentTraveler.gold) || (bargainChance >= currentTraveler.fear)) {
-        travelerBargains(gold);
-    } else {
+    var maxPercentage = (30 + (currentTraveler.fear * 10)) / 100;
+    if (gold <= Math.ceil(currentTraveler.gold * maxPercentage)) {
       travelerPays(gold);
+    } else {
+      travelerBargains(gold);
     }
   }
 }
 
 function travelerPays(gold) {
   state.currentGold += parseInt(gold);
-  delay = 500;
+  delay = 1500;
   addAction('...');
-  addAction('Their shoulders sag in acceptance.');
-  addAction('"Alright.", they say, handing me the gold I demanded.');
-  var coinOrCoins = gold === 1 ? 'coin' : 'coins';
-  addAction('I wave them away and add the ' + coinOrCoins + ' to my current stash.');
+  var fearLevel = fearLevels[currentTraveler.fear];
+  addMultiple(fearLevel.acceptance, gold);
   updateGold();
 }
 
 function travelerBargains(gold) {
+  if (currentTraveler.fear === 0) {
+    var noPay = Math.round(Math.random());
+  }
+  
   var maxGold = currentTraveler.gold > gold ? gold - 1 : currentTraveler.gold - 1;
   bargainGold = Math.ceil(Math.random() * maxGold) + 1;
-  delay = 500;
+  delay = 1500;
   addAction('...');
-  addAction('"I can\'t pay that much!", the traveler begs.');
-  addAction('"What about ' + bargainGold + '? That I can pay!"', prepareAction);
+  var fearLevel = fearLevels[currentTraveler.fear];
+  addAction(fearLevel.rejection);
+  if (noPay) {
+    addAction(fearLevel.nopay, prepareAction);
+  } else {
+    var bargain = fearLevel.bargain.replace('$coin', bargainGold);
+    if (bargainGold === 1) {
+      bargain = bargain.replace(/coins/g, 'coin');
+    }
+    addAction(bargain, prepareAction);
+  }
 }
 
 function travelerBegs() {
-  delay = 500;
+  delay = 1500;
   addAction('...');
   addAction('"I have no money! I cannot pay!", they cry.');
   addAction('"Please, let me pass!"', prepareAction);
@@ -199,11 +275,12 @@ function prepareAction() {
 
 function acceptOffer() {
   $('#accept-or-reject').hide();
-  delay = 500;
+  delay = 1500;
   addAction('...');
+  var fearLevel = fearLevels[currentTraveler.fear];
   addAction('"Alright.", I nod in acceptance. Some money is better than no money.');
   var coinOrCoins = bargainGold === 1 ? 'coin' : 'coins';
-  addAction('I watch as they scramble away and add the ' + coinOrCoins + ' to my current stash.');
+  addAction('I watch them leave before adding the ' + coinOrCoins + ' to my current stash.');
   state.changeFear--;
   if (state.changeFear <= -3) {
     if (state.minFear > 0) {
@@ -221,11 +298,16 @@ function acceptOffer() {
 
 function rejectOffer() {
   $('#accept-or-reject').hide();
-  delay = 500;
+  delay = 1500;
   addAction('...');
   addAction('I can\'t accept that.');
   addAction('I roar, launching myself at the traveler.');
   addAction('Soon enough, they\'re dead.');
+  if (currentTraveler.gold > 0) {
+    addAction('I grab their coin pouch, adding its contents to my stash.');
+    state.currentGold += currentTraveler.gold;
+  }
+  
   state.changeFear++;
   if (state.changeFear >= 3) {
     if (state.maxFear < fearLevels.length - 1) {
@@ -254,6 +336,21 @@ function addAction(text, callback, params) {
     }
   }, delay);
   delay += 1500;
+}
+
+function addMultiple(array, gold) {
+  for (var i = 0; i < array.length; i++) {
+    var line = array[i];
+    if (gold) {
+      if ((line.indexOf('coins') > -1) && (parseInt(gold) === 1)) {
+        line = line.replace(/coins/g, 'coin');
+      }
+      if (line.indexOf('$coin') > -1) {
+        line = line.replace('$coin', gold.toString())
+      }
+    }
+    addAction(line);
+  }
 }
 
 function allowNumbersOnly(e) {
