@@ -9,3 +9,5 @@ v0.1.3 - Added favicon
 v0.1.4 - Added Analytics and Ad
 v0.1.5 - Fixed a bug when accepting bargain
 v0.1.6 - Fixed mobile width issue with text being cut on the sides
+
+v0.2.0 - Added save through localStorage; Chieftain Tax mechanic - lose a percentage of your gold for each 24h away from your stash

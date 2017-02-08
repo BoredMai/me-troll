@@ -35,11 +35,14 @@ travelerTypes = [
 
 fearLevels = ['calm', 'hesitant', 'distressed', 'scared', 'terrified']
 
-currentGold = 0;
+state = {
+  "currentGold": 12,
+  "minFear": 0,
+  "maxFear": 4,
+  "changeFear": 0
+}
+
 bargainGold = 0;
-minFear = 0;
-maxFear = 4;
-changeFear = 0;
 delay = 0;
 
 function init() {
@@ -51,7 +54,44 @@ function init() {
   
   delay = 500;
   addAction('I am a troll.');
-  addAction('I guard the bridge.', newTraveler);
+  var localState = localStorage.getItem('MeTroll');
+  if (localState) {
+    state = JSON.parse(localState);
+    addAction('I guard the bridge.', checkTime);
+  } else {
+    saveState();
+    addAction('I guard the bridge.', newTraveler);
+  }
+}
+
+function checkTime() {
+  var date = new Date();
+  var dateDiff = Math.floor((date.getTime() - state.timestamp) / (1000 * 60 * 60 * 24));
+  var chieftainGold = 0;
+  for (var i = 0; i < dateDiff; i++) {
+    if (state.currentGold === 0) {
+      break;
+    }
+    var percentage = Math.floor(Math.random() * 6) + 5;
+    var gold = Math.round(state.currentGold * percentage / 100);
+    if (gold < 5) {
+      gold = state.currentGold < 5 ? state.currentGold : 5;
+    }
+    chieftainGold += gold;
+    state.currentGold -= gold;
+  }
+
+  if (chieftainGold === 0) {
+    addAction('Looks like the chieftain didn\'t disturb my pile of gold while I was gone.');
+    addAction('Good.');
+    updateGold();
+  } else {
+    addAction('My pile of gold is smaller than before.');
+    addAction('The chieftain collected his tax.');
+    var coinOrCoins = chieftainGold === 1 ? ' coin.' : ' coins.';
+    addAction('I lost ' + chieftainGold + coinOrCoins);
+    updateGold();
+  }
 }
 
 function newTraveler() {
@@ -64,10 +104,10 @@ function newTraveler() {
     fear: Math.floor(Math.random() * (currentType.maxFear - currentType.minFear) + currentType.minFear)
   };
 
-  if (currentTraveler.fear < minFear) {
-    currentTraveler.fear = minFear;
-  } else if (currentTraveler.fear > maxFear) {
-    currentTraveler.fear = maxFear;
+  if (currentTraveler.fear < state.minFear) {
+    currentTraveler.fear = state.minFear;
+  } else if (currentTraveler.fear > state.maxFear) {
+    currentTraveler.fear = state.maxFear;
   }
 
   delay = 1500;
@@ -79,8 +119,9 @@ function newTraveler() {
 }
 
 function prepareDemand() {
-  $('#input-number').show().val('').prop({ max: 100, min: 0 });
-  $('#instructions').show().text('Input a value between 0 and 100');
+  $('#input-number').val('').prop({ max: 100, min: 0 });
+  $('#input-number').focus();
+  $('#instructions').text('Input a value between 0 and 100');
   $('#demand-gold').show();
 }
 
@@ -94,12 +135,12 @@ function demandGold() {
     addAction('"What..?", they ask, in confusion.');
     addAction('"Go, before I change my mind!", I roar.');
     addAction('I watch as they scramble away and add the coins to my current stash.');
-    if (minFear > 0) {
-      minFear--;
-    } else if (maxFear > 0) {
-      maxFear--;
+    if (state.minFear > 0) {
+      state.minFear--;
+    } else if (state.maxFear > 0) {
+      state.maxFear--;
     }
-    changeFear = 0;
+    state.changeFear = 0;
     addAction('Am I going soft..?', newTraveler);
   } else {
     var coinOrCoins = gold === 1 ? 'coin' : 'coins';
@@ -124,15 +165,14 @@ function resolveGold(gold) {
 }
 
 function travelerPays(gold) {
-  currentGold += parseInt(gold);
+  state.currentGold += parseInt(gold);
   delay = 500;
   addAction('...');
   addAction('Their shoulders sag in acceptance.');
   addAction('"Alright.", they say, handing me the gold I demanded.');
   var coinOrCoins = gold === 1 ? 'coin' : 'coins';
   addAction('I wave them away and add the ' + coinOrCoins + ' to my current stash.');
-  var coinOrCoins = currentGold === 1 ? ' coin.' : ' coins.';
-  addAction('I currently have ' + currentGold + coinOrCoins, newTraveler);
+  updateGold();
 }
 
 function travelerBargains(gold) {
@@ -164,20 +204,19 @@ function acceptOffer() {
   addAction('"Alright.", I nod in acceptance. Some money is better than no money.');
   var coinOrCoins = bargainGold === 1 ? 'coin' : 'coins';
   addAction('I watch as they scramble away and add the ' + coinOrCoins + ' to my current stash.');
-  changeFear--;
-  if (changeFear <= -3) {
-    if (minFear > 0) {
-      minFear--;
+  state.changeFear--;
+  if (state.changeFear <= -3) {
+    if (state.minFear > 0) {
+      state.minFear--;
       addAction('Am I going soft..?');
-    } else if (maxFear > 0) {
-      maxFear--;
+    } else if (state.maxFear > 0) {
+      state.maxFear--;
       addAction('Am I going soft..?');
     }
-    changeFear = 0;
+    state.changeFear = 0;
   }
-  currentGold += parseInt(bargainGold);
-  var coinOrCoins = currentGold === 1 ? ' coin.' : ' coins.';
-  addAction('I currently have ' + currentGold + coinOrCoins, newTraveler);
+  state.currentGold += parseInt(bargainGold);
+  updateGold();
 }
 
 function rejectOffer() {
@@ -187,19 +226,24 @@ function rejectOffer() {
   addAction('I can\'t accept that.');
   addAction('I roar, launching myself at the traveler.');
   addAction('Soon enough, they\'re dead.');
-  changeFear++;
-  if (changeFear >= 3) {
-    if (maxFear < fearLevels.length - 1) {
-      maxFear++;
+  state.changeFear++;
+  if (state.changeFear >= 3) {
+    if (state.maxFear < fearLevels.length - 1) {
+      state.maxFear++;
       addAction('They\'ll think twice before challenging me.');
-    } else if (minFear < fearLevels.length - 1) {
-      minFear++;
+    } else if (state.minFear < fearLevels.length - 1) {
+      state.minFear++;
       addAction('They\'ll think twice before challenging me.');
     }
-    changeFear = 0;
+    state.changeFear = 0;
   }
-  var coinOrCoins = currentGold === 1 ? ' coin.' : ' coins.';
-  addAction('I currently have ' + currentGold + coinOrCoins, newTraveler);
+  updateGold();
+}
+
+function updateGold() {
+  var coinOrCoins = state.currentGold === 1 ? ' coin.' : ' coins.';
+  addAction('I currently have ' + state.currentGold + coinOrCoins, newTraveler);
+  saveState();
 }
 
 function addAction(text, callback, params) {
@@ -237,4 +281,9 @@ function allowNumbersOnly(e) {
       e.preventDefault();
     }
   }
+}
+
+function saveState() {
+  state.timestamp = new Date().getTime();
+  localStorage.setItem('MeTroll', JSON.stringify(state));
 }
