@@ -14,3 +14,4 @@ v0.2.0 - Added save through localStorage; Chieftain Tax mechanic - lose a percen
 
 v0.3.0 - Added detailed description and custom lines for each fear state
 v0.3.1 - Fixed bargain bug that allowed traveler to reject the demand and then ask to pay the same amount
+v0.3.2 - Refined bargain mechanics to add a minimum amount of gold based on the traveler's fear

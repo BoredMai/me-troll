@@ -244,7 +244,11 @@ function travelerBargains(gold) {
   }
   
   var maxGold = currentTraveler.gold > gold ? gold - 1 : currentTraveler.gold - 1;
-  bargainGold = Math.ceil(Math.random() * maxGold);
+  var minGold = Math.round(currentTraveler.gold * (currentTraveler.fear * 10) / 100);
+  bargainGold = Math.ceil(Math.random() * maxGold) + minGold;
+  if (bargainGold > maxGold) {
+    bargainGold = maxGold;
+  }
   delay = 1500;
   addAction('...');
   var fearLevel = fearLevels[currentTraveler.fear];
