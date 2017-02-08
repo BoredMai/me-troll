@@ -14,7 +14,8 @@ body {
   text-align: center;
   background-color: white;
   border-radius: 30px;
-  width: 800px;
+  width: 100%;
+  max-width: 800px;
   height: 600px;
   padding: 30px 40px;
   display: flex;
@@ -23,7 +24,8 @@ body {
 }
 
 #actions {
-  width: 800px;
+  width: 100%;
+  max-width: 800px;
   height: 500px;
   margin-bottom: 30px;
   display: flex;
@@ -38,6 +40,10 @@ body {
 
 #instructions {
   margin-top: 5px;
+}
+
+.command {
+  display: none;
 }
 
 .input {
