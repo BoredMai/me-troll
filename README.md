@@ -13,3 +13,4 @@ v0.1.6 - Fixed mobile width issue with text being cut on the sides
 v0.2.0 - Added save through localStorage; Chieftain Tax mechanic - lose a percentage of your gold for each 24h away from your stash
 
 v0.3.0 - Added detailed description and custom lines for each fear state
+v0.3.1 - Fixed bargain bug that allowed traveler to reject the demand and then ask to pay the same amount
