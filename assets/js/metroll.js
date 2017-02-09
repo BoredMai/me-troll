@@ -2,7 +2,7 @@ travelerTypes = [
   {
     type: 'Poor',
     minGold: 0,
-    maxGold: 15,
+    maxGold: 10,
     looks: [ 'They wear a travel cape over their clothes, a backpack on their shoulders.',
              'They look weak and weary, as if they haven\'t seen food in days.',
              'Their clothes are simple, worn. They\'re clothes of a hard worker.',
@@ -12,8 +12,8 @@ travelerTypes = [
   },
   {
     type: 'Lower Class',
-    minGold: 10,
-    maxGold: 30,
+    minGold: 11,
+    maxGold: 40,
     looks: [ 'They wear a travel cape over their clothes, a backpack on their shoulders.',
              'Their clothes are simple, worn. They\'re clothes of a hard worker.',
              'They seem to have walked quite a bit to get here, yet they don\'t look tired.',
@@ -23,8 +23,8 @@ travelerTypes = [
   },
   {
     type: 'Middle Class',
-    minGold: 20,
-    maxGold: 60,
+    minGold: 41,
+    maxGold: 80,
     looks: [ 'They wear a travel cape over their clothes, a backpack on their shoulders.',
              'They seem to have walked quite a bit to get here, yet they don\'t look tired.',
              'They have clean clothes, and seem to know their way around the land.',
@@ -34,7 +34,7 @@ travelerTypes = [
   },
   {
     type: 'Upper Class',
-    minGold: 40,
+    minGold: 81,
     maxGold: 100,
     looks: [ 'They wear a travel cape over their clothes, a backpack on their shoulders.',
              'They have clean clothes, and seem to know their way around the land.',
@@ -106,22 +106,34 @@ chieftainTax = {
               'I lost $coin coins.']
 }
 
+slayedTroll = [ '...',
+                'Here comes a traveler.',
+                'I hear more footsteps. There\'s another with them.',
+                'Many others. Before I can react, I am surrounded.',
+                'This is not good.',
+                'I fight, I yell, I roar, but I am one, and they are many. I managed to defeat some of them, but it isn\'t long until my body cannot take it anymore.',
+                'I fall, defeated in battle.',
+                'As I die, I hear their captain talk about the fat bounty they\'ll get when they deliver my head to their boss.',
+                'The last sound I hear is the axe coming down onto my neck.']
+
 state = {
-  "currentGold": 0,
-  "minFear": 0,
-  "maxFear": fearLevels.length - 1,
-  "changeFear": 0
+  currentGold: 0,
+  minFear: 0,
+  maxFear: fearLevels.length - 1,
+  changeFear: 0
 }
 
 bargainGold = 0;
 delay = 0;
 
 function init() {
+  $("#actions").empty();
   $('.command').hide();
   $('#input-number').on('keydown', allowNumbersOnly);
   $('#act').on('click', demandGold);
   $('#accept').on('click', acceptOffer);
   $('#reject').on('click', rejectOffer);
+  $('#restart').on('click', init);
   
   delay = 1500;
   addAction('I am a troll.');
@@ -152,6 +164,7 @@ function checkTime() {
     state.currentGold -= gold;
   }
 
+  delay = 1500;
   if (chieftainGold === 0) {
     addMultiple(chieftainTax.undisturbed);
   } else {
@@ -161,12 +174,16 @@ function checkTime() {
 }
 
 function newTraveler() {
-  var index = Math.floor(Math.random() * 4);
-  currentType = travelerTypes[index];
+  var gold = Math.floor(Math.random() * 101);
+  var type = 0;
+  while (gold > travelerTypes[type].maxGold) {
+    type++;
+  }
+  var currentType = travelerTypes[type];
   currentTraveler = {
-    type: currentType.type,
+    type: type,
     looks: currentType.looks[Math.floor(Math.random()*currentType.looks.length)],
-    gold: Math.floor(Math.random() * (currentType.maxGold - currentType.minGold) + currentType.minGold),
+    gold: gold,
     fear: Math.floor(Math.random() * (currentType.maxFear - currentType.minFear) + currentType.minFear)
   };
 
@@ -201,13 +218,7 @@ function demandGold() {
     addAction('"What..?", they ask, in confusion.');
     addAction('"Go, before I change my mind!", I roar.');
     addAction('And with that, they leave. No looking back.');
-    if (state.minFear > 0) {
-      state.minFear--;
-    } else if (state.maxFear > 0) {
-      state.maxFear--;
-    }
-    state.changeFear = 0;
-    addAction('Am I going soft..?', newTraveler);
+    reduceFear(true);
   } else {
     var coinOrCoins = gold === 1 ? 'coin' : 'coins';
     addAction('"Stop.", I say. "Pay ' + gold + ' ' + coinOrCoins + ' or leave, human."');
@@ -218,6 +229,7 @@ function demandGold() {
 function resolveGold(gold) {
   gold = parseInt(gold);
   if (currentTraveler.gold === 0) {
+    bargainGold = 0;
     travelerBegs();
   } else {
     var maxPercentage = (30 + (currentTraveler.fear * 10)) / 100;
@@ -254,6 +266,7 @@ function travelerBargains(gold) {
   var fearLevel = fearLevels[currentTraveler.fear];
   addAction(fearLevel.rejection);
   if (noPay) {
+    bargainGold = 0;
     addAction(fearLevel.nopay, prepareAction);
   } else {
     var bargain = fearLevel.bargain.replace('$coin', bargainGold);
@@ -281,23 +294,25 @@ function acceptOffer() {
   $('#accept-or-reject').hide();
   delay = 1500;
   addAction('...');
-  var fearLevel = fearLevels[currentTraveler.fear];
-  addAction('"Alright.", I nod in acceptance. Some money is better than no money.');
-  var coinOrCoins = bargainGold === 1 ? 'coin' : 'coins';
-  addAction('I watch them leave before adding the ' + coinOrCoins + ' to my current stash.');
-  state.changeFear--;
-  if (state.changeFear <= -3) {
-    if (state.minFear > 0) {
-      state.minFear--;
-      addAction('Am I going soft..?');
-    } else if (state.maxFear > 0) {
-      state.maxFear--;
-      addAction('Am I going soft..?');
+  if (bargainGold === 0) {
+    if (currentTraveler.fear === 0) {
+      addAction('Such mockery. Such arrogance.');
+      addAction('Yet, I didn\'t react. I let them leave, feeling my pride shatter.');
+      reduceFear(true);
+    } else {
+      addAction('This one has nothing left, it seems. Nothing I can take..');
+      addAction('"You can pass, this time.", I say. "But don\'t come back until you get coin."');
+      addAction('They thank me and rush past me, crossing the bridge before have a chance to change my mind.')
+      reduceFear(true);
     }
-    state.changeFear = 0;
+  } else {
+    var fearLevel = fearLevels[currentTraveler.fear];
+    var acceptLines = fearLevel.acceptance.slice(1);
+    addAction('"Alright.", I nod in acceptance. Some money is better than no money.');
+    addMultiple(acceptLines);
+    state.currentGold += parseInt(bargainGold);
+    reduceFear();
   }
-  state.currentGold += parseInt(bargainGold);
-  updateGold();
 }
 
 function rejectOffer() {
@@ -311,30 +326,78 @@ function rejectOffer() {
     addAction('I grab their coin pouch, adding its contents to my stash.');
     state.currentGold += currentTraveler.gold;
   }
-  
-  state.changeFear++;
-  if (state.changeFear >= 3) {
-    if (state.maxFear < fearLevels.length - 1) {
-      state.maxFear++;
-      addAction('They\'ll think twice before challenging me.');
-    } else if (state.minFear < fearLevels.length - 1) {
-      state.minFear++;
-      addAction('They\'ll think twice before challenging me.');
+  increaseFear();
+}
+
+function reduceFear(force) {
+  state.changeFear -= currentTraveler.type - 1;
+
+  if ((state.changeFear <= -travelerTypes.length) || (force)) {
+    if (state.minFear > 0) {
+      state.minFear--;
+    } else if (state.maxFear > 0) {
+      state.maxFear--;
     }
     state.changeFear = 0;
+    addAction('Am I going soft..?');
+  }
+  updateGold();
+}
+
+function increaseFear() {
+  state.changeFear += currentTraveler.type + 1;
+  if (state.changeFear >= travelerTypes.length) {
+    if (state.maxFear < fearLevels.length - 1) {
+      state.maxFear++;
+    } else if (state.minFear < fearLevels.length - 1) {
+      state.minFear++;
+    }
+    state.changeFear = 0;
+    addAction('They\'ll think twice before challenging me.');
   }
   updateGold();
 }
 
 function updateGold() {
   var coinOrCoins = state.currentGold === 1 ? ' coin.' : ' coins.';
-  addAction('I currently have ' + state.currentGold + coinOrCoins, newTraveler);
+  addAction('I currently have ' + state.currentGold + coinOrCoins, checkDanger);
   saveState();
+}
+
+function checkDanger() {
+  var dangerLevel = state.minFear + state.maxFear - (fearLevels.length - 1);
+  if (dangerLevel > 0) {
+    var increment = 100 / fearLevels.length;
+    var attackChance = Math.ceil(Math.random() * 100);
+    console.log("Danger", dangerLevel);
+    console.log("increment", increment);
+    console.log('Chance', attackChance);
+    if (attackChance <= increment * dangerLevel) {
+      state = {
+        currentGold: 0,
+        minFear: 0,
+        maxFear: fearLevels.length - 1,
+        changeFear: 0
+      };
+      saveState();
+      delay = 1500;
+      addMultiple(slayedTroll);
+      addAction(null, function() {
+        $('#restart').show();
+      });
+    } else {
+      newTraveler();
+    }
+  } else {
+    newTraveler();
+  }
 }
 
 function addAction(text, callback, params) {
   setTimeout(function() {
-    $('#actions').append('<span>' + text + '</span>');
+    if (text) {
+      $('#actions').append('<span>' + text + '</span>');
+    }
     if (callback) {
       callback(params);
     }
