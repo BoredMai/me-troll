@@ -133,8 +133,12 @@ function init() {
   $('#act').on('click', demandGold);
   $('#accept').on('click', acceptOffer);
   $('#reject').on('click', rejectOffer);
-  $('#restart').on('click', init);
+  $('#restart').on('click', startGame);
   
+  startGame();
+}
+
+function startGame() {
   delay = 1500;
   addAction('I am a troll.');
   var localState = localStorage.getItem('MeTroll');
