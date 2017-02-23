@@ -19,3 +19,4 @@ v0.3.2 - Refined bargain mechanics to add a minimum amount of gold based on the 
 v0.4.0 - Added danger mechanic, calling adventurers to deal with the troll
 v0.4.1 - Fixed double actions after restart
 v0.4.2 - Changed from onload to $(document).ready
+v0.4.3 - Added source and donate button

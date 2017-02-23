@@ -76,3 +76,19 @@ body {
     width: 728px;
     margin: 25px 0px;
 }
+
+.src-img {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0px 20px;
+  margin-top: 9px;
+}
+
+.source {
+  margin-top: 10px;
+}
+
+.src-img form {
+  margin-bottom: 0;
+}
