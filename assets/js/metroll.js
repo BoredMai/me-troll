@@ -126,7 +126,7 @@ state = {
 bargainGold = 0;
 delay = 0;
 
-function init() {
+$(document).ready(function() {
   $("#actions").empty();
   $('.command').hide();
   $('#input-number').on('keydown', allowNumbersOnly);
@@ -136,7 +136,7 @@ function init() {
   $('#restart').on('click', startGame);
   
   startGame();
-}
+});
 
 function startGame() {
   delay = 1500;

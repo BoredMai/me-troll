@@ -17,3 +17,5 @@ v0.3.1 - Fixed bargain bug that allowed traveler to reject the demand and then a
 v0.3.2 - Refined bargain mechanics to add a minimum amount of gold based on the traveler's fear
 
 v0.4.0 - Added danger mechanic, calling adventurers to deal with the troll
+v0.4.1 - Fixed double actions after restart
+v0.4.2 - Changed from onload to $(document).ready
